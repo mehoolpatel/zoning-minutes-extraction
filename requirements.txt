@@ -1,0 +1,12 @@
+fastapi          # web API
+uvicorn          # ASGI server
+pydantic         # request/response models
+pymupdf          # PDF reading
+pdfplumber       # PDF reading
+openai           # LLM calls
+chromadb         # vector store / retrieval
+python-dotenv    # optional, for managing API keys
+sentence-transformers>=3.0.0
+langchain-chroma
+langchain-community
+sqlalchemy

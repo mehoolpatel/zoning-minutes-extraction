@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+.env
+.cache/
+
+# Local data
+data/extracted_pages/
+*.log
+
+# OS / IDE
+.DS_Store
+.qodo
+*.swp             
+*.swo
+.vscode/          
+chroma_db/
+*.db
+.python-version
