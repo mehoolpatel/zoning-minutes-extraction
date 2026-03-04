@@ -61,9 +61,7 @@ Once ingestion is complete, use the following endpoints to verify the structured
 
 ## ⚠️ Known Issues & Limitations
 
-* **Meeting Date Persistence**: A caching issue in the batch ingestion loop currently causes the meeting date from the initial document to persist across the session. 
 * **Idempotency**: The ingestion pipeline does not currently track "already processed" files. To avoid duplicate records, use the provided `reset_db.py` script or delete the `.db` file before re-running ingestion.
-* **Extraction Success Counter**: The `/ingest` response reports the number of document chunks processed rather than the total count of individual sub-items extracted.
 * **In-Memory Vector Store**: The current configuration uses an in-memory instance of ChromaDB for speed. Data in the vector store is not persisted across server restarts.
 
 ## 🛠 Project Structure

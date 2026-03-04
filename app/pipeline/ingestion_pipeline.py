@@ -55,7 +55,9 @@ def run_ingestion_pipeline(vector_store=None, use_mock: bool = True):
 
     # Load → Chunk (once outside the loop)
     docs = load_documents(use_mock=False, dump_pages=True)
-    logger.info(f"Loaded {len(docs)} documents.")
+    num_docs = len(docs)
+    total_pages = sum(len(d['pages']) for d in docs)  # docs still have 'pages' dict
+    logger.info(f"Loaded {num_docs} documents with {total_pages} total pages.")
 
     chunks = chunker.chunk(docs)
     logger.info(f"Processing {len(chunks)} chunks...")
@@ -66,12 +68,6 @@ def run_ingestion_pipeline(vector_store=None, use_mock: bool = True):
 
         # Extract structured actions/votes from this chunk
         extraction_results = extractor.extract([chunk])
-
-        # Need to generate a document id
-        for res in extraction_results:
-            if res.document_id == 'unknown':
-                # Map the Pydantic metadata 'file_name' to the result's 'document_id'
-                res.document_id = getattr(chunk.metadata, 'file_name', 'unknown')
 
         # Store structured extractions from the chunk in SQL Database
         sql_store_extraction_results(db, extraction_results)
@@ -90,11 +86,16 @@ def run_ingestion_pipeline(vector_store=None, use_mock: bool = True):
         vector_store.add_documents([lang_doc])
         all_extractions.extend(extraction_results)
 
-    logger.info(f"Ingestion complete. Extracted {len(all_extractions)} items.")    
-    return all_extractions, vector_store
+    num_docs = len(all_extractions)  
+    total_items = sum(len(res.items) for res in all_extractions)     # total MeetingItems
+    logger.info(
+        f"Ingestion complete. Processed {num_docs} documents with {total_pages} total pages "
+        f"and extracted {total_items} items."
+    )
+    return all_extractions, vector_store, num_docs, total_pages, total_items
 
 if __name__ == "__main__":
-    extractions, store = run_ingestion_pipeline(use_mock=True)
+    extractions, updated_store, num_docs, total_pages, total_items = run_ingestion_pipeline(use_mock=True)
     logger.info("Sample Extractions:")
     for e in extractions[:5]:  # just first 5 for brevity
         logger.info(e)

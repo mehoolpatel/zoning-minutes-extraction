@@ -26,6 +26,7 @@ class ItemType(str, Enum):
     AGENDA = "AGENDA"
     MINUTES = "MINUTES"
     ADJOURNMENT = "ADJOURNMENT"
+    OTHER = "OTHER"                 # catch-all for unexpected types
 
 class MeetingItem(BaseModel):
     item_type: ItemType
@@ -107,4 +108,3 @@ class DocumentChunk(BaseModel):
     """The exchange format for the ingestion pipeline."""
     content: str
     metadata: DocumentMetadata
-

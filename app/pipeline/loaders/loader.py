@@ -102,7 +102,9 @@ def _load_real_documents(dump_pages: bool = False):
                         logger.error(f"Failed to extract page {i+1} of {pdf_path.name}: {e}")
                         pages.append({"page_number": i + 1, "text": ""})  # still include placeholder
 
+                doc_id = pdf_path.stem
                 doc = {
+                    "document_id": doc_id,
                     "file_name": pdf_path.name,
                     "pages": pages,
                 }

@@ -145,6 +145,7 @@ def query_meeting_items(
         end = datetime.strptime(end_date, "%Y-%m-%d").date()
         query = query.filter(models.DocumentModel.meeting_date <= end)
 
+    #return query.order_by(models.DocumentModel.meeting_date.desc()).limit(limit).all()
     return query.order_by(models.DocumentModel.meeting_date.desc()).limit(limit).all()
 
 def query_meeting_item_detail(db: Session, item_id: int):

@@ -35,7 +35,7 @@ def trigger_ingestion(request: Request, use_mock: bool = False):
         active_store = request.app.state.vector_store                
         
         # Run pipeline using the current store
-        extractions, updated_store = run_ingestion_pipeline(
+        extractions, updated_store, num_docs, total_pages, total_items = run_ingestion_pipeline(
             vector_store=active_store, 
             use_mock=use_mock
         )
@@ -44,18 +44,13 @@ def trigger_ingestion(request: Request, use_mock: bool = False):
         # Even if it's the same instance, this guarantees the app uses
         # the latest version of the store.
         request.app.state.vector_store = updated_store
-        
-        # Safely count based on type
-        #if hasattr(updated_store, '_collection'): # Chroma
-        #    count = updated_store._collection.count()
-        #else: # Memory
-        #    count = len(updated_store.items)
         count = updated_store.count()
 
         return {
             "status": "success",
-            "processed_chunks": count,
-            "extractions_found": len(extractions)
+            "processed_documents": num_docs,
+            "total_pages": total_pages,
+            "extractions_found": total_items
         }
         
     except Exception as e:

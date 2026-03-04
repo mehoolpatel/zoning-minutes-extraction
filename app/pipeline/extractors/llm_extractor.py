@@ -3,8 +3,7 @@ import json
 import logging
 import openai
 from typing import List, Dict, Any
-
-from app.core.schemas import DocumentChunk, ExtractionResult, VoteStatus, MemberVote, MeetingItem
+from app.core.schemas import DocumentChunk, ExtractionResult, VoteStatus, MemberVote, MeetingItem, ItemType
 from app.core.prompts import SYSTEM_PROMPT, EXTRACTION_SCHEMA
 from .base import BaseExtractor
 
@@ -46,6 +45,10 @@ class LLMExtractor(BaseExtractor):
                 
                 # --- NEW: Parse top-level meeting date ---
                 meeting_date = llm_json.get("meeting_date")
+                logger.info(
+                    f"EXTRACTOR: doc={chunk.metadata.source_id}, page={chunk.metadata.page_number}, "
+                    f"meeting_date={meeting_date} (type={type(meeting_date)})"
+                ) 
                 
                 items_for_this_chunk = []
                 
@@ -75,9 +78,15 @@ class LLMExtractor(BaseExtractor):
                             )
                     
                     # 4. Create MeetingItem Pydantic object
-                    # Note: We map item fields directly from the LLM JSON
+                    # Normalize item_type into the ItemType Enum
+                    try:
+                        item_type_norm = ItemType(item.get("item_type", "").upper())  # will raise ValueError if unknown
+                    except ValueError:
+                        logger.info(f"[NORMALIZE] Unknown item_type '{item.get('item_type')}' → 'OTHER'")
+                        item_type_norm = ItemType.OTHER  # fallback Enum value
+
                     meeting_item = MeetingItem(
-                        item_type=item.get("item_type"),
+                        item_type=item_type_norm,
                         item_name=item.get("item_name"), # This is case_number for cases
                         applicant=item.get("applicant"),
                         owner=item.get("owner"),

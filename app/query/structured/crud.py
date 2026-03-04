@@ -3,6 +3,9 @@ from app.models import structured as models
 from app.core import schemas
 from datetime import datetime 
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 def clean_item_description(item_type: str, description: str) -> str:
     """Cleans up inconsistencies in item descriptions."""
@@ -31,6 +34,7 @@ def get_or_create_document(db: Session, doc_id: str, meeting_date: str = None):
         db.add(doc)
         db.commit()
         db.refresh(doc)
+    logger.info(f"[DOCUMENT CREATED] id={doc_id}, meeting_date={parsed_date}")
     return doc
 
 def get_or_create_member(db: Session, name: str):
@@ -45,6 +49,7 @@ def get_or_create_member(db: Session, name: str):
 
 def ingest_extraction_result(db: Session, result: schemas.ExtractionResult):
     # 1. Ensure Document exists
+    logger.info(f"[INGEST EXTRACT RESULT] document_id={result.document_id} meeting_date={result.meeting_date}")
     doc = get_or_create_document(db, result.document_id, result.meeting_date)
     
     for item_data in result.items:
